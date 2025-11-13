@@ -1,0 +1,106 @@
+name: Build and publish
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: AWS CLI v2
+        uses: imehedi/actions-awscli-v2@latest
+        continue-on-error: true
+        with:
+          args: s3 cp s3://${{ vars.SC_ARTIFACTS_BUCKET }}/bitwarden-cli-docker/REVISION . --endpoint-url ${{ vars.SC_AMS_AWS_ENDPOINT }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.SC_AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SC_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "nl-ams"
+
+      - name: Tag
+        id: tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Find latest stable Bitwarden CLI (cli-v*) using GitHub API (authenticated)
+          REPO_TAG=$(curl -sS \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/bitwarden/clients/releases?per_page=100" \
+            | jq -r '
+                [ .[]
+                  | select(.tag_name | startswith("cli-v"))
+                  | select(.draft==false and .prerelease==false)
+                  | .tag_name ]
+                | sort_by( sub("^cli-v"; "") | split(".") | map(tonumber) )
+                | last
+                | sub("^cli-v"; "")
+              ')
+          if [ -z "${REPO_TAG:-}" ] || ! echo "$REPO_TAG" | grep -Eq '^[0-9]+(\.[0-9]+){2}$'; then
+            echo "Failed to resolve latest Bitwarden CLI version" >&2
+            exit 1
+          fi
+          echo "Latest Bitwarden CLI: $REPO_TAG"
+          PREVIOUS_TAG=$(cat REVISION || echo "")
+          mkdir -p temp/
+          if [ "$REPO_TAG" = "$PREVIOUS_TAG" ]; then
+            echo "No new tags. Skipping."
+            echo "skipped=true" >> $GITHUB_OUTPUT
+            echo $REPO_TAG > temp/REVISION
+            exit 0
+          fi
+          VERSION="$REPO_TAG"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo $REPO_TAG > temp/REVISION
+
+      - name: AWS CLI v2
+        uses: imehedi/actions-awscli-v2@latest
+        with:
+          args: s3 cp temp/REVISION s3://${{ vars.SC_ARTIFACTS_BUCKET }}/bitwarden-cli-docker/REVISION --endpoint-url ${{ vars.SC_AMS_AWS_ENDPOINT }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.SC_AWS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SC_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "nl-ams"
+
+      # Buildx explicit setup not required for single-arch; build-push-action
+      # provisions a builder automatically.
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        if: ${{ steps.tag.outputs.skipped != 'true' }}
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/icoretech/bitwarden-cli-docker
+          labels: |
+            org.opencontainers.image.description=Bitwarden CLI
+            org.opencontainers.image.source=https://github.com/icoretech/bitwarden-cli-docker
+            org.opencontainers.image.title=bitwarden-cli
+            org.opencontainers.image.vendor=iCoreTech, Inc.
+          tags: |
+            type=raw,value=${{ env.VERSION }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        if: ${{ steps.tag.outputs.skipped != 'true' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PACKAGES_PAT }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        if: ${{ steps.tag.outputs.skipped != 'true' }}
+        with:
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # No provenance attestation for simplicity and max compatibility
+          build-args: BW_VERSION=${{ env.VERSION }}
