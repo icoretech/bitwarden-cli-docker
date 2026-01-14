@@ -14,8 +14,12 @@ if [ -z "${BW_HOST:-}" ]; then
   exit 2
 fi
 
+# Ensure we are logged out before changing server config to avoid:
+# "Logout required before server config update."
+bw logout >/dev/null 2>&1 || true
+
 # Point CLI to the desired server (US/EU/self-hosted)
-bw config server "${BW_HOST}"
+bw config server "${BW_HOST}" >/dev/null 2>&1
 
 login_with_apikey() {
   echo "Using API key to log in"
