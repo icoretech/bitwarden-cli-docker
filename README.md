@@ -19,7 +19,11 @@ Replace `<tag>` with a Bitwarden CLI version (for example, `2025.10.0`).
 
 You can find available tags on the [GitHub Packages page](https://github.com/icoretech/bitwarden-cli-docker/pkgs/container/bitwarden-cli-docker).
 
-This image runs the `bw` binary as a non‑root user (`uid 1000`) with `HOME` set to `/bw`. The entrypoint transparently proxies arguments to `bw`.
+This image runs the `bw` binary as a non-root user (`uid 1000`) with `HOME` set to `/bw`. The entrypoint transparently proxies arguments to `bw`.
+
+For interactive CLI usage it is reasonable to persist `/bw` between runs. For
+long-lived `bw serve` automation, especially across CLI upgrades, a clean or
+ephemeral `/bw` is safer because stale CLI state can wedge login or startup.
 
 ```bash
 # Persist CLI config/session between runs
@@ -27,7 +31,7 @@ mkdir -p ./bw
 
 docker run --rm -it \
   -e BW_HOST=https://vault.bitwarden.com \
-  -e BW_USERNAME=user@example.com \
+  -e BW_USER=user@example.com \
   -e BW_PASSWORD='your-master-password' \
   -v $PWD/bw:/bw \
   ghcr.io/icoretech/bitwarden-cli-docker:2025.10.0
