@@ -1,7 +1,7 @@
 # Local build and run
 #
 # Build (choose Bitwarden CLI version via BW_VERSION):
-#   docker build -t bitwarden-cli-docker:local --build-arg BW_VERSION=2025.10.0 .
+#   docker build -t bitwarden-cli-docker:local --build-arg BW_VERSION=2026.2.0 .
 #
 # Run (interactive):
 #   docker run --rm -it --name bw bitwarden-cli-docker:local --version
@@ -10,8 +10,8 @@
 # Downloader stage: fetch and verify Bitwarden CLI binary
 FROM alpine:3.22 AS downloader
 
-# Require the version from build args; do not auto-resolve
-ARG BW_VERSION
+# renovate: datasource=github-releases depName=bitwarden/clients extractVersion=^cli-v(?<version>.+)$
+ARG BW_VERSION=2026.2.0
 
 RUN apk update --no-cache \
  && apk add --no-cache curl jq unzip ca-certificates \

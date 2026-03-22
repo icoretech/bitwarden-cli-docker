@@ -5,7 +5,10 @@ The built AMD64 Docker images are published to GHCR with semantic tagging. amd64
 
 ## 📖 Overview
 
-The build system tracks upstream Bitwarden CLI releases (tags like `cli-v2025.10.0`). When a new CLI release is available, an image is built and published to GHCR. Image tags mirror the CLI version (for example, `2025.10.0`).
+The tracked Bitwarden CLI version lives in `Dockerfile` as `BW_VERSION`.
+Renovate watches upstream Bitwarden CLI releases (tags like `cli-v2026.2.0`),
+opens a PR when that tracked version changes, and merging that PR publishes the
+matching GHCR image tag.
 
 ## 💡 Usage
 
@@ -15,7 +18,7 @@ Pull the image:
 docker pull ghcr.io/icoretech/bitwarden-cli-docker:<tag>
 ```
 
-Replace `<tag>` with a Bitwarden CLI version (for example, `2025.10.0`).
+Replace `<tag>` with a Bitwarden CLI version (for example, `2026.2.0`).
 
 You can find available tags on the [GitHub Packages page](https://github.com/icoretech/bitwarden-cli-docker/pkgs/container/bitwarden-cli-docker).
 
@@ -34,7 +37,7 @@ docker run --rm -it \
   -e BW_USER=user@example.com \
   -e BW_PASSWORD='your-master-password' \
   -v $PWD/bw:/bw \
-  ghcr.io/icoretech/bitwarden-cli-docker:2025.10.0
+  ghcr.io/icoretech/bitwarden-cli-docker:2026.2.0
 ```
 
 ## 📄 License
