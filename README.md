@@ -1,14 +1,15 @@
 # 🔐 Bitwarden CLI Docker Image
 
 This repository hosts an automated build system for creating 🐳 Docker images of the [Bitwarden CLI](https://help.bitwarden.com/article/cli/).
-The built AMD64 Docker images are published to GHCR with semantic tagging. amd64-only.
+The built Docker images are published to GHCR with semantic tagging for both `linux/amd64` and `linux/arm64`.
 
 ## 📖 Overview
 
 The tracked Bitwarden CLI version lives in `Dockerfile` as `BW_VERSION`.
 Renovate watches upstream Bitwarden CLI releases (tags like `cli-v2026.2.0`),
 opens a PR when that tracked version changes, and merging that PR publishes the
-matching GHCR image tag.
+matching GHCR image tag as a multi-arch manifest built from the official
+Bitwarden OSS CLI release artifacts.
 
 ## 💡 Usage
 
