@@ -11,7 +11,7 @@
 FROM --platform=$BUILDPLATFORM alpine:3.22 AS downloader
 
 # renovate: datasource=github-releases depName=bitwarden/clients extractVersion=^cli-v(?<version>.+)$
-ARG BW_VERSION=2026.3.0
+ARG BW_VERSION=2026.4.1
 ARG TARGETARCH
 
 RUN apk update --no-cache \
