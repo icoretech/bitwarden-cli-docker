@@ -28,6 +28,9 @@ This image runs the `bw` binary as a non-root user (`uid 1000`) with `HOME` set 
 For interactive CLI usage it is reasonable to persist `/bw` between runs. For
 long-lived `bw serve` automation, especially across CLI upgrades, a clean or
 ephemeral `/bw` is safer because stale CLI state can wedge login or startup.
+Managed-server mode starts `bw serve --hostname all`, which accepts Kubernetes
+service Host headers while Origin checks remain enforced. Keep this service
+network-isolated and do not expose it publicly.
 
 ```bash
 # Persist CLI config/session between runs

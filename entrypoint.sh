@@ -80,4 +80,4 @@ set +e
 keep_unlocked &
 
 echo "Running bw serve on 0.0.0.0:8087"
-exec bw serve --hostname 0.0.0.0
+exec bw serve --hostname all
