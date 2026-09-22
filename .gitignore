@@ -1,4 +1,6 @@
 /bw
 .DS_Store
+.omo/
+.sisyphus/
 push.sh
 scripts/

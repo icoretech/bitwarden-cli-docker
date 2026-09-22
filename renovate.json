@@ -1,34 +1,44 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "enabledManagers": ["custom.regex", "github-actions"],
-  "labels": ["dependencies", "renovate"],
-  "prHourlyLimit": 0,
-  "prConcurrentLimit": 0,
-  "rebaseWhen": "conflicted",
-  "rangeStrategy": "replace",
-  "timezone": "Europe/Rome",
-  "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^Dockerfile$/"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+) extractVersion=(?<extractVersion>[^\\s]+)\\s+ARG BW_VERSION=(?<currentValue>[^\\s]+)"
-      ],
-      "versioningTemplate": "semver"
-    }
-  ],
-  "packageRules": [
-    {
-      "matchManagers": ["custom.regex"],
-      "matchPackageNames": ["bitwarden/clients"],
-      "automerge": true,
-      "platformAutomerge": true
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "automerge": true,
-      "platformAutomerge": true
-    }
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended"],
+	"enabledManagers": ["custom.regex", "github-actions"],
+	"labels": ["dependencies", "renovate"],
+	"prHourlyLimit": 0,
+	"prConcurrentLimit": 0,
+	"rebaseWhen": "conflicted",
+	"rangeStrategy": "replace",
+	"timezone": "Europe/Rome",
+	"customManagers": [
+		{
+			"customType": "regex",
+			"managerFilePatterns": ["/^Dockerfile$/"],
+			"matchStrings": [
+				"# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+) extractVersion=(?<extractVersion>[^\\s]+)\\s+ARG BW_VERSION=(?<currentValue>[^\\s]+)"
+			],
+			"versioningTemplate": "semver"
+		},
+		{
+			"customType": "regex",
+			"managerFilePatterns": ["/^\\.github/workflows/build\\.yml$/"],
+			"matchStrings": [
+				"VAULTWARDEN_IMAGE: vaultwarden/server:(?<currentValue>[^\\s]+)"
+			],
+			"datasourceTemplate": "docker",
+			"depNameTemplate": "vaultwarden/server",
+			"versioningTemplate": "docker"
+		}
+	],
+	"packageRules": [
+		{
+			"matchManagers": ["custom.regex"],
+			"matchPackageNames": ["bitwarden/clients"],
+			"automerge": true,
+			"platformAutomerge": true
+		},
+		{
+			"matchManagers": ["github-actions"],
+			"automerge": true,
+			"platformAutomerge": true
+		}
+	]
 }

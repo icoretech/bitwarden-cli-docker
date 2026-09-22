@@ -11,7 +11,7 @@
 FROM --platform=$BUILDPLATFORM alpine:3.22 AS downloader
 
 # renovate: datasource=github-releases depName=bitwarden/clients extractVersion=^cli-v(?<version>.+)$
-ARG BW_VERSION=2026.9.0
+ARG BW_VERSION=2026.8.0
 ARG TARGETARCH
 
 RUN apk update --no-cache \
@@ -36,7 +36,7 @@ RUN apk update --no-cache \
 FROM debian:stable-slim
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates wget \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates wget \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=downloader /tmp/bw /usr/local/bin/bw
