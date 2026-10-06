@@ -141,6 +141,7 @@ async function request(base, path, options = {}) {
 
 async function waitForHttp(base, path, container, validate) {
 	const deadline = Date.now() + 60_000;
+	let lastStatus = "no HTTP response";
 	while (Date.now() < deadline) {
 		const running = await docker([
 			"inspect",
@@ -157,13 +158,22 @@ async function waitForHttp(base, path, container, validate) {
 		}
 		try {
 			const body = await request(base, path);
+			lastStatus = `HTTP 2xx; CLI status=${body?.data?.template?.status ?? "missing"}`;
 			if (validate(body)) return;
 		} catch (error) {
 			if (!(error instanceof Error)) throw error;
+			const cause = error.cause;
+			const causeCode =
+				cause instanceof Error && "code" in cause
+					? `; cause=${String(cause.code)}`
+					: "";
+			lastStatus = `${error.message}${causeCode}`;
 		}
 		await delay(500);
 	}
-	throw new Error(`${stage}: readiness deadline exceeded`);
+	throw new Error(
+		`${stage}: readiness deadline exceeded for ${base}${path} (${lastStatus})`,
+	);
 }
 
 async function publishedUrl(container, port, protocol = "http") {
@@ -282,10 +292,26 @@ async function main() {
 	await waitForHttp(serverUrl, "/alive", server, () => true);
 
 	stage = "fresh account registration";
-	await request(serverUrl, "/identity/accounts/register", {
+	const verificationToken = await request(
+		serverUrl,
+		"/identity/accounts/register/send-verification-email",
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify({ email, name: "Compatibility test" }),
+		},
+	);
+	assert.equal(typeof verificationToken, "string");
+	await request(serverUrl, "/identity/accounts/register/finish", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(registration()),
+		body: JSON.stringify({
+			...registration(),
+			emailVerificationToken: verificationToken,
+		}),
 	});
 
 	await startContainer(

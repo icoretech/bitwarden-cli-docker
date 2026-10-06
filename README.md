@@ -6,10 +6,12 @@ The built Docker images are published to GHCR with semantic tagging for both `li
 ## 📖 Overview
 
 The tracked Bitwarden CLI version lives in `Dockerfile` as `BW_VERSION`.
-Renovate watches upstream Bitwarden CLI releases (tags like `cli-v2026.2.0`),
+Renovate watches upstream Bitwarden CLI releases (tags like `cli-v2026.9.1`),
 opens a PR when that tracked version changes, and merging that PR publishes the
 matching GHCR image tag as a multi-arch manifest built from the official
 Bitwarden OSS CLI release artifacts.
+
+CLI 2026.9.1 is tested against Vaultwarden 1.37.4. Upgrade older Vaultwarden servers before moving from CLI 2026.8.0 to 2026.9.1. Image publication requires the real login, unlock, sync and server checks described in [Compatibility checks](TESTING.md).
 
 ## 💡 Usage
 
@@ -19,7 +21,7 @@ Pull the image:
 docker pull ghcr.io/icoretech/bitwarden-cli-docker:<tag>
 ```
 
-Replace `<tag>` with a Bitwarden CLI version (for example, `2026.2.0`).
+Replace `<tag>` with a Bitwarden CLI version (for example, `2026.9.1`).
 
 You can find available tags on the [GitHub Packages page](https://github.com/icoretech/bitwarden-cli-docker/pkgs/container/bitwarden-cli-docker).
 
@@ -41,7 +43,7 @@ docker run --rm -it \
   -e BW_USER=user@example.com \
   -e BW_PASSWORD='your-master-password' \
   -v $PWD/bw:/bw \
-  ghcr.io/icoretech/bitwarden-cli-docker:2026.2.0
+  ghcr.io/icoretech/bitwarden-cli-docker:2026.9.1
 ```
 
 ## 📄 License

@@ -13,10 +13,10 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       IMAGE_NAME: ghcr.io/icoretech/bitwarden-cli-docker
-      VAULTWARDEN_IMAGE: vaultwarden/server:1.37.3-alpine
+      VAULTWARDEN_IMAGE: vaultwarden/server:1.37.4-alpine
 
     steps:
       - name: Checkout

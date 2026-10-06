@@ -1,7 +1,7 @@
 # Local build and run
 #
 # Build (choose Bitwarden CLI version via BW_VERSION):
-#   docker build -t bitwarden-cli-docker:local --build-arg BW_VERSION=2026.2.0 .
+#   docker build -t bitwarden-cli-docker:local --build-arg BW_VERSION=2026.9.1 .
 #
 # Run (interactive):
 #   docker run --rm -it --name bw bitwarden-cli-docker:local --version
@@ -11,7 +11,7 @@
 FROM --platform=$BUILDPLATFORM alpine:3.22 AS downloader
 
 # renovate: datasource=github-releases depName=bitwarden/clients extractVersion=^cli-v(?<version>.+)$
-ARG BW_VERSION=2026.8.0
+ARG BW_VERSION=2026.9.1
 ARG TARGETARCH
 
 RUN apk update --no-cache \
