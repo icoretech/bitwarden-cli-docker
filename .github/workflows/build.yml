@@ -96,6 +96,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=cacheonly' || '' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: BW_VERSION=${{ steps.version.outputs.version }}
