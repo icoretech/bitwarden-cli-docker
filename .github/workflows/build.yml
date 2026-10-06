@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     env:
       IMAGE_NAME: ghcr.io/icoretech/bitwarden-cli-docker
       VAULTWARDEN_IMAGE: vaultwarden/server:1.37.4-alpine
