@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-26.04
     env:
       IMAGE_NAME: ghcr.io/icoretech/bitwarden-cli-docker
-      VAULTWARDEN_IMAGE: vaultwarden/server:1.37.4-alpine
+      VAULTWARDEN_IMAGE: vaultwarden/server:1.37.5-alpine
 
     steps:
       - name: Checkout
